@@ -7,7 +7,8 @@
 
 # testing
 /coverage
-/tests/imgs/**.svg
+/tests/imgs/*
+!/tests/imgs/.gitkeep
 
 # next.js
 /.next/

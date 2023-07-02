@@ -1,4 +1,4 @@
-import { Graph } from "../graph.js";
+import { Graph } from "../src/graph.js";
 
 function addNode(x, y, graph) {
     graph.createNode(x, y)
