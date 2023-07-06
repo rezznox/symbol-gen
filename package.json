@@ -5,14 +5,16 @@
     "main": "interpreter.js",
     "type": "module",
     "scripts": {
-        "build": "babel interpreter.js -d dist" ,
+        "build": "babel interpreter.js -d dist",
         "start": "babel-node interpreter.js",
         "test": "jest"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "ramda": "^0.29.0"
+        "@agtabesh/lsh": "^0.1.0",
+        "ramda": "^0.29.0",
+        "random-words": "^2.0.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.21.5",

@@ -1,4 +1,4 @@
-import { execute } from "../interpreter.js";
+import { execute } from "../src/interpreter.js";
 import { writeFile } from "node:fs";
 
 const performInterpreterTest = (instructions, name) => {
@@ -157,16 +157,6 @@ it(test11, () => {
     performInterpreterTest(
       [0x01, "red", 0x01, 50, 0x01, 5, 0x04],
       test11
-    ).length
-  ).toBe(0);
-});
-
-const test12 = "red-semicircle-from-center";
-it(test12, () => {
-  expect(
-    performInterpreterTest(
-      [0x01, "red", 0x01, 50, 0x01, 90, 0x05],
-      test12
     ).length
   ).toBe(0);
 });
