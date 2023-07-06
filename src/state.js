@@ -18,12 +18,11 @@ export default {
     stack: [],
 }
 
-export const deepCopyState = curry((modify, state) => {
+export const mutationSafeZone = curry((modify, state) => {
     const graph = state.graph;
     const instructionSet = state.config.instructionSet;
     const newState = JSON.parse(JSON.stringify(state));
     newState.graph = graph;
     newState.config.instructionSet = instructionSet;
-    modify(newState);
-    return newState;
+    return (modify && modify(newState)) || newState;
 })

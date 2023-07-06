@@ -1,16 +1,18 @@
 import {
   __,
-  apply,
   assocPath,
+  bind,
   curry,
   inc,
   path,
-  pipe
+  pipe,
+  prop,
+  tap
 } from "ramda";
 import { toRadians } from "./conversions.js";
-import { deepCopyState } from "./state.js";
+import { mutationSafeZone } from "./state.js";
 
-const insertToStack = curry((state) => {
+export const insertToStack = curry((state) => {
   const getIncrementedIndex = (state) => {
     return pipe(path(["instructions", "index"]), inc)(state);
   };
@@ -23,18 +25,20 @@ const insertToStack = curry((state) => {
     return path(["instructions", "list", index])(state);
   };
 
-  return deepCopyState((newState) => {
+  return mutationSafeZone((newState) => {
     const incr = getIncrementedIndex(newState);
     const value = getValue(incr, newState);
-    pipe(path(["stack", "push"]), apply(__, value))(newState);
-    setNewInstructionIndex(inc(incr), newState);
+    pipe(path(["stack", "push"]), bind(__, prop('stack', newState)), tap(__, value))(newState);
+    return setNewInstructionIndex(inc(incr), newState);
   }, state);
 });
 
-const createInsertToStack = curry((value, state) => {
-  return deepCopyState((newState) => {
-    pipe(path(["instructions", "list", 'push']), apply(__, '0x01'))(newState)
-    pipe(path(["instructions", "list", 'push']), apply(__, value))(newState);
+export const createInsertToStack = curry((value, state) => {
+  return mutationSafeZone((newState) => {
+    pipe(path(["instructions", "list", 'push']), bind(__, path(['instructions', 'list'], newState)), tap(__, 0x01))(newState)
+    pipe(path(["instructions", "list", 'push']), bind(__, path(['instructions', 'list'], newState)), tap(__, value))(newState);
+    console.log({newState});
+    return newState;
   }, state);
 });
 
@@ -107,10 +111,7 @@ const instructionsMap = {
 };
 
 export const initializeInstructionSet = (state) => {
-  return deepCopyState((newState) => {
-    console.log({newState})
-    console.log(instructionsMap)
-    assocPath(['config', 'instructionSet'], instructionsMap)(newState);
-    console.log({newState})
+  return mutationSafeZone((newState) => {
+    return assocPath(['config', 'instructionSet'], instructionsMap)(newState);
   }, state);
 };
