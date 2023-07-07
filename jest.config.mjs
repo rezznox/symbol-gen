@@ -4,6 +4,9 @@
  */
 
 export default {
+  transform: { },
+  /*
+  transformIgnorePatterns: ["node_modules/(?!variables/.*)"], */
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 

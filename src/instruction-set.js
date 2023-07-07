@@ -1,16 +1,18 @@
 import {
   __,
+  assoc,
   assocPath,
-  bind,
   curry,
   inc,
+  multiply,
   path,
   pipe,
   prop,
-  tap
+  subtract,
+  sum,
 } from "ramda";
-import { toRadians } from "./conversions.js";
-import { mutationSafeZone } from "./state.js";
+import { cos, fix, sin } from "./conversions.js";
+import { mutationSafeZone, popStack, pushInstruction } from "./state.js";
 
 export const insertToStack = curry((state) => {
   const getIncrementedIndex = (state) => {
@@ -28,56 +30,70 @@ export const insertToStack = curry((state) => {
   return mutationSafeZone((newState) => {
     const incr = getIncrementedIndex(newState);
     const value = getValue(incr, newState);
-    pipe(path(["stack", "push"]), bind(__, prop('stack', newState)), tap(__, value))(newState);
+    pushInstruction(value, newState);
     return setNewInstructionIndex(inc(incr), newState);
   }, state);
 });
 
 export const createInsertToStack = curry((value, state) => {
   return mutationSafeZone((newState) => {
-    pipe(path(["instructions", "list", 'push']), bind(__, path(['instructions', 'list'], newState)), tap(__, 0x01))(newState)
-    pipe(path(["instructions", "list", 'push']), bind(__, path(['instructions', 'list'], newState)), tap(__, value))(newState);
-    console.log({newState});
+    pushInstruction('0x01', newState);
+    pushInstruction(value, newState);
     return newState;
   }, state);
 });
 
-const drawLinesInAngle = () => {
-  const move = {
-    angle: stack.pop(),
-    l: stack.pop(),
-    color: stack.pop(),
-  };
-  const dy1 = move.l * Math.sin(toRadians(move.angle));
-  const dx1 = move.l * Math.cos(toRadians(move.angle));
-  const right = {
-    y: progress.pencilPosition.y - dy1,
-    x: progress.pencilPosition.x + dx1,
-  };
-  const dy2 = move.l * Math.sin(toRadians(move.angle));
-  const dx2 = move.l * Math.cos(toRadians(180 - move.angle));
+export const drawLinesInAngle = (state) => {
+  return mutationSafeZone((newState) => {
+    let move = {};
+    const getMove = (string) => prop(string[0], move);
+    move = assoc("angle", popStack(newState), move);
+    move = assoc("l", popStack(newState), move);
+    move = assoc("color", popStack(newState), move);
+    move = assoc("initX", popStack(newState), move);
+    move = assoc("initY", popStack(newState), move);
+    const dy1 = multiply(getMove`l`, sin(getMove`angle`));
+    const dx1 = multiply(getMove`l`, cos(getMove`angle`));
 
-  const left = {
-    y: progress.pencilPosition.y - dy2,
-    x: progress.pencilPosition.x + dx2,
-  };
+    const end = {
+      y: subtract(getMove`initY`, dy1),
+      x: sum([getMove`initX`, dx1]),
+    };
 
-  svgDraft.svg += `<line fill="none" stroke="${move.color}" x1="${progress.pencilPosition.x}" y1="${progress.pencilPosition.y}" x2="${right.x}" y2="${right.y}" stroke-width="2"> </line >`;
-  svgDraft.svg += `<line fill="none" stroke="${move.color}" x1="${progress.pencilPosition.x}" y1="${progress.pencilPosition.y}" x2="${left.x}" y2="${left.y}" stroke-width="2"> </line >`;
+    let svg = prop("svg", newState);
+
+    svg = `${svg}<line fill="none" stroke="${getMove`color`}" x1="${getMove`initX`}" y1="${getMove`initY`}" x2="${fix(
+      end.x,
+      2
+    )}" y2="${fix(end.y, 2)}" stroke-width="2"></line>`;
+
+    return assoc("svg", svg, newState);
+  }, state);
 };
 
-const createDrawLinesInAngle = () => {
-  //TODO: implement
-}
+export const createDrawLinesInAngle = curry(
+  (angle, length, color, initX, initY, state) => {
+    return mutationSafeZone((newState) => {
+      const transitionState = pipe(
+        createInsertToStack(initX),
+        createInsertToStack(initY),
+        createInsertToStack(color),
+        createInsertToStack(length),
+        createInsertToStack(angle)
+      )(newState);
+      pushInstruction('0x02', transitionState);
+      return transitionState
+    }, state);
+  }
+);
 
 const drawSemiCircle = () => {
   //TODO: implement
 };
 
-
 const createDrawSemiCircle = () => {
   //TODO: implement
-}
+};
 
 const drawCircle = () => {
   //TODO: implement
@@ -85,7 +101,7 @@ const drawCircle = () => {
 
 const createDrawCircle = () => {
   //TODO: implement
-}
+};
 
 const instructionsMap = {
   0x01: {
@@ -112,6 +128,6 @@ const instructionsMap = {
 
 export const initializeInstructionSet = (state) => {
   return mutationSafeZone((newState) => {
-    return assocPath(['config', 'instructionSet'], instructionsMap)(newState);
+    return assocPath(["config", "instructionSet"], instructionsMap)(newState);
   }, state);
 };
