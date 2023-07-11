@@ -1,6 +1,13 @@
+import { assocPath, pipe } from "ramda";
 import { create300x300EmptyCanvas } from "./canvas.js";
-import { InstructionHub } from "./instruction-set.js";
-
+import { initializeInstructionSet } from "./instruction-set.js";
+import {
+  create256Hash,
+  determineDesicionGuide,
+  stringToBytes,
+} from "./sha256/index.js";
+import state, { setConfig } from "./state.js";
+/* 
 const stack = [];
 
 export const execute = (instructions) => {
@@ -20,10 +27,20 @@ export const execute = (instructions) => {
     throw Error("Stack ended with values in it");
   }
   return { stack, svgCanvas };
-};
+}; */
 
 export const executeV2 = (input, mode) => {
   //Transform the string input to other string...
+  const inputTransformed = stringToBytes(create256Hash(input));
+  const guide = determineDesicionGuide(inputTransformed)();
+  const initState = pipe(
+    initializeInstructionSet,
+    setConfig(guide),
+    create300x300EmptyCanvas,
+    assocPath(["input", "encoded"], inputTransformed),
+    assocPath(["input", "value"], input)
+  )({ ...state });
+  console.log(initState);
   /**
    * Transform that string to instructions
    *    -   set Mode Of Interpreting String
@@ -34,3 +51,5 @@ export const executeV2 = (input, mode) => {
    * Return svg
    *  */
 };
+
+executeV2("Fabio Alejandro Toscano Mariño", 1);
