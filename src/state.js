@@ -1,9 +1,10 @@
-import { __, apply, bind, curry, path, pipe, prop, tap } from "ramda";
+import { __, apply, assoc, assocPath, bind, curry, path, pipe, prop, tap } from "ramda";
 
 export default {
   graph: undefined,
   config: {
     instructionSet: {},
+    guide: {}
   },
   svg: undefined,
   input: {
@@ -44,3 +45,5 @@ export const pushInstruction = curry((instruction, newState) =>
     tap(__, instruction)
   )(newState)
 );
+
+export const setConfig = assocPath(['config', 'guide'], __, __)
