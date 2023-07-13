@@ -1,5 +1,4 @@
 import { assocPath, pipe } from "ramda";
-import { create300x300EmptyCanvas } from "./canvas.js";
 import { initializeInstructionSet } from "./instruction-set.js";
 import {
   create256Hash,
@@ -36,7 +35,6 @@ export const executeV2 = (input, mode) => {
   const initState = pipe(
     initializeInstructionSet,
     setConfig(guide),
-    create300x300EmptyCanvas,
     assocPath(["input", "encoded"], inputTransformed),
     assocPath(["input", "value"], input)
   )({ ...state });

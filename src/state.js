@@ -1,12 +1,22 @@
-import { __, apply, assoc, assocPath, bind, curry, path, pipe, prop, tap } from "ramda";
+import {
+  __,
+  apply,
+  assocPath,
+  bind,
+  curry,
+  path,
+  pipe,
+  prop,
+  tap,
+} from "ramda";
 
 export default {
   graph: undefined,
   config: {
     instructionSet: {},
-    guide: {}
+    guide: {},
   },
-  svg: undefined,
+  svg: "",
   input: {
     value: undefined,
     encoded: undefined,
@@ -29,7 +39,11 @@ export const mutationSafeZone = curry((modify, state) => {
 });
 
 export const popStack = (newState) =>
-  pipe(path(["stack", "pop"]), bind(__, prop("stack", newState)), apply(__, []))(newState);
+  pipe(
+    path(["stack", "pop"]),
+    bind(__, prop("stack", newState)),
+    apply(__, [])
+  )(newState);
 
 export const pushStack = (value, newState) =>
   pipe(
@@ -46,4 +60,4 @@ export const pushInstruction = curry((instruction, newState) =>
   )(newState)
 );
 
-export const setConfig = assocPath(['config', 'guide'], __, __)
+export const setConfig = assocPath(["config", "guide"], __, __);
