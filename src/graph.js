@@ -30,3 +30,7 @@ export const Graph = function () {
     }
   };
 };
+
+export const draw = (state) => {
+  //TODO
+};
