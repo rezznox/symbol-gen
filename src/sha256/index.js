@@ -60,5 +60,4 @@ export const determineDesicionGuide = (bytes) => () => {
   }
 };
 
-const configureGuide = pipe(determineDesicionGuide(bytes), determineColor);
-const composeInstructions = pipe(configureGuide);
+export const transformToSha256 = pipe(create256Hash, stringToBytes)
