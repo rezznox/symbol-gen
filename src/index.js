@@ -1,9 +1,9 @@
-import { assocPath, curry, pipe } from "ramda";
-import state from "./state";
-import { createInstructions, initializeInstructionSet } from "./instruction-set";
-import { create300x300EmptyCanvas } from "./canvas";
-import { transformToSha256 } from "./sha256";
-import { draw } from "./graph";
+import { __, assocPath, curry, pipe } from "ramda";
+import state from "./state.js";
+import { createInstructions, initializeInstructionSet } from "./instruction-set.js";
+import { create300x300EmptyCanvas } from "./canvas.js";
+import { transformToSha256 } from "./sha256/index.js";
+import { draw } from "./graph.js";
 
 const immutableState = { ...state };
 const conejilloDeIndias = "Fabio Alejandro Toscano Mariño";
@@ -16,7 +16,7 @@ const encodeInput = curry((input, state) => {
   )(input);
 });
 
-const initProcedure = curry(function (input, immutableState) {
+const configure = curry(function (input, immutableState) {
   return pipe(
     initializeInstructionSet,
     encodeInput(input),
@@ -26,6 +26,6 @@ const initProcedure = curry(function (input, immutableState) {
   )(immutableState);
 });
 
-const run = initProcedure(conejilloDeIndias);
+const run = configure(conejilloDeIndias);
 
-run(immutableState);
+console.log(run(immutableState));
