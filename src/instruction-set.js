@@ -2,15 +2,22 @@ import {
   __,
   assoc,
   assocPath,
+  converge,
   curry,
+  find,
   findIndex,
   gt,
+  head,
   inc,
+  keys,
+  last,
   lt,
+  map,
   multiply,
   path,
   pipe,
   prop,
+  split,
   subtract,
   sum,
   tryCatch,
@@ -98,12 +105,12 @@ export const pipeDataToInstruction0x02 = (data, config, i) => {
   let j = i;
   const angleRanges = prop("angleRanges", config);
   const angleIndex = findIndex(lt(data[j]), prop("angleRanges", config));
-  const angleIncreaseFactor = MAX_ANGLE / prop('length', angleRanges);
-  const angle = (angleIndex * angleIncreaseFactor);
+  const angleIncreaseFactor = MAX_ANGLE / prop("length", angleRanges);
+  const angle = angleIndex * angleIncreaseFactor;
   j = inc(j);
   const lengthRanges = prop("lengthRanges", config);
   const lengthIndex = findIndex(lt(data[j]), lengthRanges);
-  const lengthIncreaseFactor = MAX_LENGTH / prop('length', lengthRanges);
+  const lengthIncreaseFactor = MAX_LENGTH / prop("length", lengthRanges);
   const length = (lengthIndex + 1) * lengthIncreaseFactor;
   j = inc(j);
   //Determine point of origin with graph
@@ -157,18 +164,31 @@ export const initializeInstructionSet = (state) => {
 export const createInstructions = (state) => {
   return mutationSafeZone((newState) => {
     const encoded = path(["input", "encoded"], newState);
-    const config = path(["config", "guide", "config"], newState);
-    tryCatch(
+    const guide = path(["config", "guide"], newState);
+    const instRanges = path(
+      ["config", "guide", "instructionsRanges"],
+      newState
+    );
+    const isBetweeen = (low, high, val) => low < val && val < high;
+    const takeInstruction = (byte) =>
+      pipe(
+        keys,
+        find((key) =>
+          converge(isBetweeen, [head, last, () => byte])(
+            map(Number, split("-", key))
+          )
+        )
+      );
+    return tryCatch(
       () => {
-        for (let i = 0; i < prop("length", encoded); i++) {
-          encoded[i];
-        }
-        return [];
+        return map((x) => {
+          const inst = takeInstruction(x)(instRanges);
+        });
       },
       () => {
         return [];
       }
-    );
-    return assocPath(["config", "instructionSet"], instructionsMap)(newState);
+    )();
+    /* return assocPath(["config", "instructionSet"], instructionsMap)(newState); */
   }, state);
 };
