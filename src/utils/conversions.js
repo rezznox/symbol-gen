@@ -1,5 +1,5 @@
 import { __, applyTo, compose, curry, tap } from "ramda";
-import { generateLsh } from "./lsh/index.js";
+import { generateLsh } from "../lsh/index.js";
 
 const { cos: MathCos, sin: MathSin } = Math;
 
