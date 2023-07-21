@@ -21,6 +21,9 @@ export default {
     value: undefined,
     encoded: undefined,
   },
+  build: {
+    encodedIndex: 0
+  },
   coordinates: undefined,
   instructions: {
     list: [],

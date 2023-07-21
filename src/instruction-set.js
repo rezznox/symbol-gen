@@ -4,10 +4,13 @@ import {
   assocPath,
   converge,
   curry,
+  equals,
   find,
   findIndex,
   gt,
   head,
+  identity,
+  ifElse,
   inc,
   keys,
   last,
@@ -20,10 +23,13 @@ import {
   split,
   subtract,
   sum,
+  thunkify,
   tryCatch,
+  values,
 } from "ramda";
-import { cos, fix, sin } from "./conversions.js";
+import { cos, fix, sin } from "./utils/conversions.js";
 import { mutationSafeZone, popStack, pushInstruction } from "./state.js";
+import { findRangeOnObject } from "./utils/object-operations.js";
 
 const MAX_ANGLE = 90;
 const MAX_LENGTH = 30;
@@ -169,24 +175,33 @@ export const createInstructions = (state) => {
       ["config", "guide", "instructionsRanges"],
       newState
     );
-    const isBetweeen = (low, high, val) => low < val && val < high;
-    const takeInstruction = (byte) =>
-      pipe(
-        keys,
-        find((key) =>
-          converge(isBetweeen, [head, last, () => byte])(
-            map(Number, split("-", key))
-          )
-        )
-      );
+    
+  const takeInstruction = (byte) => {
+    const findRangeForByte = findRangeOnObject(byte);
+    return pipe(converge(prop, [pipe(findRangeForByte), identity]));
+  };
+
+    const phases = {
+      //instructions phase
+      phase1: thunkify((x, phase) => {
+        phase = {id: inc(prop('id', phase))};
+        const inst = pipe(takeInstruction(__, instRanges), values, head)(x);
+        return createInstruction(instructionsMap[inst]);
+      }),
+      //length phase
+      phase2: thunkify((x, phase) => {
+        phase = {id: inc(prop('id', phase))};
+        return pipe(takeInstruction(__, instRanges), values, head)(x);
+      }),
+    }
     return tryCatch(
       () => {
-        return map((x) => {
-          const inst = takeInstruction(x)(instRanges);
-        });
+        const phase = {id: 1};
+        map((x) => phases['phase'+phase.id](), encoded);
+        return state;
       },
       () => {
-        return [];
+        return state;
       }
     )();
     /* return assocPath(["config", "instructionSet"], instructionsMap)(newState); */
