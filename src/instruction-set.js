@@ -92,7 +92,12 @@ export const drawLinesInAngle = (state) => {
 };
 
 export const createDrawLinesInAngle = curry(
-  (angle, length, color, initX, initY, state) => {
+  (state, index) => {
+    //angle, length, color, initX, initY
+    //Insert angle depending on angles range in guide
+    //Insert length depending on lengths range in guide
+    //Insert red for color for now
+    //initX, initY bytes are sent to the graph to decide from what node to draw
     return mutationSafeZone((newState) => {
       const transitionState = pipe(
         createInsertToStack(initX),
