@@ -30,6 +30,8 @@ import {
 import { cos, fix, sin } from "./utils/conversions.js";
 import { mutationSafeZone, popStack, pushInstruction } from "./state.js";
 import { findRangeOnObject } from "./utils/object-operations.js";
+import { modes } from "./modes/index.js";
+import { mode } from "./parsed-env.js";
 
 const MAX_ANGLE = 90;
 const MAX_LENGTH = 30;
@@ -91,26 +93,28 @@ export const drawLinesInAngle = (state) => {
   }, state);
 };
 
-export const createDrawLinesInAngle = curry(
-  (state, index) => {
-    //angle, length, color, initX, initY
-    //Insert angle depending on angles range in guide
-    //Insert length depending on lengths range in guide
-    //Insert red for color for now
-    //initX, initY bytes are sent to the graph to decide from what node to draw
-    return mutationSafeZone((newState) => {
-      const transitionState = pipe(
-        createInsertToStack(initX),
-        createInsertToStack(initY),
-        createInsertToStack(color),
-        createInsertToStack(length),
-        createInsertToStack(angle)
-      )(newState);
-      pushInstruction("0x02", transitionState);
-      return transitionState;
-    }, state);
-  }
-);
+export const createDrawLinesInAngle = curry((state, index) => {
+  //angle, length, color, initX, initY
+  //Insert angle depending on angles range in guide
+  //Insert length depending on lengths range in guide
+  //Insert red for color for now
+  //initX, initY bytes are sent to the graph to decide from what node to draw
+  const { getLength, getAngle } = new modes[mode]();
+  const length = getLength(state, index);
+  const angle = getAngle(state, index);
+  const { initX, initY } = drawLinesInAngle(state, length, angle);
+  return mutationSafeZone((newState) => {
+    const transitionState = pipe(
+      createInsertToStack(initX),
+      createInsertToStack(initY),
+      createInsertToStack("red"),
+      createInsertToStack(length),
+      createInsertToStack(angle)
+    )(newState);
+    pushInstruction("0x02", transitionState);
+    return transitionState;
+  }, state);
+});
 
 export const pipeDataToInstruction0x02 = (data, config, i) => {
   let j = i;
@@ -180,29 +184,29 @@ export const createInstructions = (state) => {
       ["config", "guide", "instructionsRanges"],
       newState
     );
-    
-  const takeInstruction = (byte) => {
-    const findRangeForByte = findRangeOnObject(byte);
-    return pipe(converge(prop, [pipe(findRangeForByte), identity]));
-  };
+
+    const takeInstruction = (byte) => {
+      const findRangeForByte = findRangeOnObject(byte);
+      return pipe(converge(prop, [pipe(findRangeForByte), identity]));
+    };
 
     const phases = {
       //instructions phase
       phase1: thunkify((x, phase) => {
-        phase = {id: inc(prop('id', phase))};
+        phase = { id: inc(prop("id", phase)) };
         const inst = pipe(takeInstruction(__, instRanges), values, head)(x);
         return createInstruction(instructionsMap[inst]);
       }),
       //length phase
       phase2: thunkify((x, phase) => {
-        phase = {id: inc(prop('id', phase))};
+        phase = { id: inc(prop("id", phase)) };
         return pipe(takeInstruction(__, instRanges), values, head)(x);
       }),
-    }
+    };
     return tryCatch(
       () => {
-        const phase = {id: 1};
-        map((x) => phases['phase'+phase.id](), encoded);
+        const phase = { id: 1 };
+        map((x) => phases["phase" + phase.id](), encoded);
         return state;
       },
       () => {
