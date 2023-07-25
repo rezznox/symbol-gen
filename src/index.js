@@ -2,9 +2,10 @@ import { __, assocPath, curry, path, pipe, prop } from "ramda";
 import state from "./state.js";
 import { createInstructions, initializeInstructionSet } from "./instruction-set.js";
 import { create300x300EmptyCanvas } from "./canvas.js";
-import { determineDesicionGuide, transformToSha256 } from "./sha256/index.js";
-import { draw } from "./graph.js";
-import onlyLines from "./guides/only-lines.js";
+import { transformToSha256 } from "./sha256/index.js";
+import { draw, initializeGraph } from "./graph.js";
+import { mode } from "./parsed-env.js";
+import { modes } from "./modes/index.js";
 
 const immutableState = { ...state };
 const conejilloDeIndias = "Fabio Alejandro Toscano Mariño";
@@ -18,15 +19,16 @@ const encodeInput = curry((input, state) => {
 });
 
 const setGuide = (state) => {
-  const {guide} = onlyLines;
+  const { guide }= modes[mode];
   return assocPath(['config', 'guide'], guide, state);
 }
-
+/* const debugPipe = (state) => {console.log(state); return state}; */
 const configure = curry(function (input, immutableState) {
   return pipe(
     initializeInstructionSet,
-    encodeInput(input),
     setGuide,
+    initializeGraph,
+    encodeInput(input),
     createInstructions,
     draw,
     create300x300EmptyCanvas

@@ -63,4 +63,17 @@ export const pushInstruction = curry((instruction, newState) =>
   )(newState)
 );
 
+export const getInstructions = (state) => {
+  return path(["instructions", "list"], state);
+}
+
+export const getGuide = (state) => {
+  return path(["config", "guide"], state);
+}
+
+
+export const getGraph = (state) => {
+  return path(["graph"], state);
+}
+
 export const setConfig = assocPath(["config", "guide"], __, __);
