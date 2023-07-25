@@ -1,0 +1,20 @@
+
+# Symbol Generator
+
+Side project to generate a symbol from an input string. The reach of this project is to be able to draw the symbol with lines and arcs using vectors. Deploy it via CI/CD on Google Cloud.
+
+It is thought to use non point notation and make it as loyal to Functional Programming as possible.
+
+## Tech Stack
+
+**Client:** React
+
+**Server:** Node, Express
+
+**Libraries:** Ramda
+
+
+## Authors
+
+- [@Rezznox](https://www.github.com/rezznox)
+
