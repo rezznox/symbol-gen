@@ -24,9 +24,6 @@ export const Graph = function () {
     const nodeDictQuery = `x${node.x}:y${node.y}`;
     if (nodeToCreate) {
       const nodetoCreateDictQuery = `x${nodeToCreate.x}:y${nodeToCreate.y}`;
-      console.log(nodeDictQuery)
-      console.log(!!this.nodesDict[nodeDictQuery])
-      console.log(!this.nodesDict[nodetoCreateDictQuery])
       const verifications = [
         !!this.nodesDict[nodeDictQuery],
         !this.nodesDict[nodetoCreateDictQuery],
@@ -38,9 +35,6 @@ export const Graph = function () {
         }
         this.arcs[nodeDictQuery][nodetoCreateDictQuery] = Symbol();
       }
-      console.log('2: ', 'here');
-      console.log(this.nodes)
-      console.log(nodeDictQuery);
     } else {
       if (!this.nodesDict[nodeDictQuery]) {
         result = spawnNode(node, nodeDictQuery);
@@ -56,7 +50,6 @@ export const initializeGraph = (state) => {
   const { createNode } = graph;
   let lastNode;
   forEach((node) => {
-    console.log('1: ', lastNode);
     lastNode = !lastNode ? createNode(node) : createNode(lastNode, node);
   }, prefilledNodes)
   return assoc("graph", graph, state);
