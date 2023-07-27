@@ -1,4 +1,7 @@
 import { assoc, prop } from "ramda";
+import { calculateDistance } from "./utils/calculations-2D";
+
+export const calcDistanceToCenter = calculateDistance({x:150, y:150});
 
 export const create300x300EmptyCanvas = (
   state

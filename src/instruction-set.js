@@ -93,16 +93,11 @@ export const drawLinesInAngle = (state) => {
   }, state);
 };
 
-export const createDrawLinesInAngle = curry((state, index) => {
+export const createDrawLinesInAngle = curry((length, angle, state) => {
   //angle, length, color, initX, initY
-  //Insert angle depending on angles range in guide
-  //Insert length depending on lengths range in guide
-  //Insert red for color for now
   //initX, initY bytes are sent to the graph to decide from what node to draw
-  const { getLength, getAngle } = new modes[mode]();
-  const length = getLength(state, index);
-  const angle = getAngle(state, index);
-  const { initX, initY } = drawLinesInAngle(state, length, angle);
+  const { graph: {createNodesFromInstruction} } = state;
+  const { initX, initY } = createNodesFromInstruction('drawLinesInAngle', [length, angle], state);
   return mutationSafeZone((newState) => {
     const transitionState = pipe(
       createInsertToStack(initX),
@@ -155,19 +150,27 @@ const instructionsMap = {
   "0x02": {
     instruction: drawLinesInAngle,
     createInstruction: createDrawLinesInAngle,
+    createInstructionMetadata: ["getLength", "getAngle"],
   },
   "0x03": {
     instruction: drawSemiCircle,
     createInstruction: createDrawSemiCircle,
+    createInstructionMetadata: ["getLength", "getAngle"],
   },
   "0x04": {
     instruction: drawCircle,
     createInstruction: createDrawCircle,
+    createInstructionMetadata: ["getLength", "getAngle"],
   },
   "0x05": undefined,
   "0x06": undefined,
   "0x07": undefined,
   "0x08": undefined,
+};
+
+const takeInstruction = (byte) => {
+  const findRangeForByte = findRangeOnObject(byte);
+  return converge(prop, [pipe(findRangeForByte), identity]);
 };
 
 export const initializeInstructionSet = (state) => {
@@ -177,42 +180,26 @@ export const initializeInstructionSet = (state) => {
 };
 
 export const createInstructions = (state) => {
-  return mutationSafeZone((newState) => {
-    const encoded = path(["input", "encoded"], newState);
-    const guide = path(["config", "guide"], newState);
-    const instRanges = path(
-      ["config", "guide", "instructionsRanges"],
-      newState
-    );
-
-    const takeInstruction = (byte) => {
-      const findRangeForByte = findRangeOnObject(byte);
-      return pipe(converge(prop, [pipe(findRangeForByte), identity]));
-    };
-
-    const phases = {
-      //instructions phase
-      phase1: thunkify((x, phase) => {
-        phase = { id: inc(prop("id", phase)) };
-        const inst = pipe(takeInstruction(__, instRanges), values, head)(x);
-        return createInstruction(instructionsMap[inst]);
-      }),
-      //length phase
-      phase2: thunkify((x, phase) => {
-        phase = { id: inc(prop("id", phase)) };
-        return pipe(takeInstruction(__, instRanges), values, head)(x);
-      }),
-    };
-    return tryCatch(
-      () => {
-        const phase = { id: 1 };
-        map((x) => phases["phase" + phase.id](), encoded);
-        return state;
-      },
-      () => {
-        return state;
-      }
-    )();
-    /* return assocPath(["config", "instructionSet"], instructionsMap)(newState); */
-  }, state);
+  let {
+    input: {
+      encoded: { length: encodedLength, slice: sliceEncoded },
+    },
+    config: {
+      mode,
+      guide: { instructionsRanges },
+    },
+    build: { encodedIndex },
+  } = state;
+  const encoded = sliceEncoded();
+  while (encodedIndex < encodedLength) {
+    const inst = takeInstruction(encoded[encodedIndex])(instructionsRanges);
+    const { metadata, createInstruction } = instructionsMap[inst];
+    const instructionParams = map((operation) => {
+      let {value, index} = mode[operation](state, encodedIndex);
+      encodedIndex = index;
+      state.build.encodedIndex = encodedIndex;
+      return value;
+    }, metadata);
+    createInstruction(...instructionParams);
+  }
 };
