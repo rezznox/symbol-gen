@@ -43,7 +43,7 @@ export function JustLines() {
       first = false;
       return byte < range;
     }, lengthRanges);
-    return increment;
+    return {value: increment, index: i++};
   };
 
   this.getAngle = (state, i) => {
@@ -63,6 +63,6 @@ export function JustLines() {
       first = false;
       return byte < range;
     }, angleRanges);
-    return increment;
+    return {value: increment, index: i++};
   };
 }
