@@ -84,13 +84,31 @@ export const Graph = function () {
     let lookupNode = sortedNodes[startIndex];
     const nodeAux = {x: multiply(cos(angle), length), y: multiply(sin(angle), length)};
     //calculate new coordinates of new node lookupNode + nodeAux
+    const newNode = {x: nodeAux.x+lookupNode.x, y: nodeAux.y+lookupNode.y};
     //Search on Arcs if there's a collission with that line
+    const iterator = this._iterateArcs();
+    let isCollision = false;
+    for(let selectedArc of iterator) {
+      isCollision = this.isThereCollision(lookupNode, selectedArc);
+      if (isCollision) {
+        break;
+      }
+    }
     //If there is, try with the rest of the graph nodes 
     /* find(node => {
       const node2 = ;
       return !this.isThereCollision();
     }, sortedNodes) */
   };
+
+  this._iterateArcs = function* () {
+    forEach((nodeQuery) => {
+      forEach((nodeQuery2) => {
+        const arc = {origin: this.nodesDict[nodeQuery], dest: this.nodesDict[nodeQuery2]};
+        yield arc;
+      }, keys(this.arcs[nodeQuery]));
+    }, keys(this.arcs));
+  }
 
   this.isThereCollision = (nodeAA0, nodeAA1, nodeBB0, nodeBB1) => {
     const { x: xAA0, y: yAA0 } = nodeAA0;
