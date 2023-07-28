@@ -87,10 +87,12 @@ export const Graph = function () {
     const newNode = {x: nodeAux.x+lookupNode.x, y: nodeAux.y+lookupNode.y};
     //Search on Arcs if there's a collission with that line
     const iterator = this._iterateArcs();
-    let selectedArc = iterator.next();
-    while(selectedArc) {
-      this.isThereCollision(lookupNode, );
-      selectedArc = iterator.next();
+    let isCollision = false;
+    for(let selectedArc of iterator) {
+      isCollision = this.isThereCollision(lookupNode, selectedArc);
+      if (isCollision) {
+        break;
+      }
     }
     //If there is, try with the rest of the graph nodes 
     /* find(node => {
