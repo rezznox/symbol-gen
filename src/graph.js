@@ -1,22 +1,15 @@
 import {
   assoc,
   curry,
-  find,
   forEach,
-  identity,
   ifElse,
   keys,
-  map,
-  max,
-  min,
   multiply,
   reduce,
 } from "ramda";
 import { getGraph, getGuide } from "./state.js";
 import {
   calculateColissionBetweenTwoLines,
-  calculateDistance,
-  calculateMGiven2Points,
   calculateY,
 } from "./utils/calculations-2D.js";
 import { cos, sin } from "./utils/conversions.js";
@@ -82,32 +75,42 @@ export const Graph = function () {
     const { nodes: {sort: sortNodes} } = this;
     const sortedNodes = sortNodes((a, b) => calcDistanceToCenter(a) - calcDistanceToCenter(b));
     let lookupNode = sortedNodes[startIndex];
+    let isCollision = false;
     const nodeAux = {x: multiply(cos(angle), length), y: multiply(sin(angle), length)};
     //calculate new coordinates of new node lookupNode + nodeAux
-    const newNode = {x: nodeAux.x+lookupNode.x, y: nodeAux.y+lookupNode.y};
+    let newNode = {x: nodeAux.x+lookupNode.x, y: nodeAux.y+lookupNode.y};
+    isCollision = this.isThereCollision(lookupNode, newNode, origin, dest);
+    if (!isCollision) {
+      this.createNode()
+      return true;
+    }
+    isCollision = false;
     //Search on Arcs if there's a collission with that line
-    const iterator = this._iterateArcs();
-    let isCollision = false;
-    for(let selectedArc of iterator) {
-      isCollision = this.isThereCollision(lookupNode, selectedArc);
-      if (isCollision) {
-        break;
+    for (let node of sortedNodes) {
+      isCollision = false || isCollision;
+      newNode = {x: nodeAux.x+node.x, y: nodeAux.y+node.y};
+      const iterator = this._iterateArcs();
+      for(const {origin, dest} of iterator) {
+        isCollision = this.isThereCollision(lookupNode, newNode, origin, dest);
+        if (isCollision) {
+          break;
+        }
       }
     }
-    //If there is, try with the rest of the graph nodes 
-    /* find(node => {
-      const node2 = ;
-      return !this.isThereCollision();
-    }, sortedNodes) */
+    if (!isCollision) {
+      this.createNode();
+      return true;
+    }
+    return true;
   };
 
   this._iterateArcs = function* () {
-    forEach((nodeQuery) => {
-      forEach((nodeQuery2) => {
+    for (let nodeQuery of keys(this.arcs)) {
+      for (let nodeQuery2 of keys(this.arcs[nodeQuery])) {
         const arc = {origin: this.nodesDict[nodeQuery], dest: this.nodesDict[nodeQuery2]};
         yield arc;
-      }, keys(this.arcs[nodeQuery]));
-    }, keys(this.arcs));
+      }
+    }
   }
 
   this.isThereCollision = (nodeAA0, nodeAA1, nodeBB0, nodeBB1) => {

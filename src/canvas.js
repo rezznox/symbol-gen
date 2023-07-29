@@ -1,5 +1,5 @@
 import { assoc, prop } from "ramda";
-import { calculateDistance } from "./utils/calculations-2D";
+import { calculateDistance } from "./utils/calculations-2D.js";
 
 export const calcDistanceToCenter = calculateDistance({x:150, y:150});
 

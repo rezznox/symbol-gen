@@ -20,6 +20,7 @@ import {
   path,
   pipe,
   prop,
+  slice,
   split,
   subtract,
   sum,
@@ -96,8 +97,14 @@ export const drawLinesInAngle = (state) => {
 export const createDrawLinesInAngle = curry((length, angle, state) => {
   //angle, length, color, initX, initY
   //initX, initY bytes are sent to the graph to decide from what node to draw
-  const { graph: {createNodesFromInstruction} } = state;
-  const { initX, initY } = createNodesFromInstruction('drawLinesInAngle', [length, angle], state);
+  const {
+    graph: { createNodesFromInstruction },
+  } = state;
+  const { initX, initY } = createNodesFromInstruction(
+    "drawLinesInAngle",
+    [length, angle],
+    state
+  );
   return mutationSafeZone((newState) => {
     const transitionState = pipe(
       createInsertToStack(initX),
@@ -150,12 +157,12 @@ const instructionsMap = {
   "0x02": {
     instruction: drawLinesInAngle,
     createInstruction: createDrawLinesInAngle,
-    createInstructionMetadata: ["getLength", "getAngle"],
+    metadata: ["getLength", "getAngle"],
   },
   "0x03": {
     instruction: drawSemiCircle,
     createInstruction: createDrawSemiCircle,
-    createInstructionMetadata: ["getLength", "getAngle"],
+    metadata: ["getLength", "getAngle"],
   },
   "0x04": {
     instruction: drawCircle,
@@ -182,7 +189,8 @@ export const initializeInstructionSet = (state) => {
 export const createInstructions = (state) => {
   let {
     input: {
-      encoded: { length: encodedLength, slice: sliceEncoded },
+      encoded: encodedP,
+      encoded: { length: encodedLength },
     },
     config: {
       mode,
@@ -190,16 +198,17 @@ export const createInstructions = (state) => {
     },
     build: { encodedIndex },
   } = state;
-  const encoded = sliceEncoded();
+  const encoded = slice(0, Infinity, encodedP);
   while (encodedIndex < encodedLength) {
     const inst = takeInstruction(encoded[encodedIndex])(instructionsRanges);
     const { metadata, createInstruction } = instructionsMap[inst];
     const instructionParams = map((operation) => {
-      let {value, index} = mode[operation](state, encodedIndex);
+      let { value, index } = mode[operation](state, encodedIndex);
       encodedIndex = index;
       state.build.encodedIndex = encodedIndex;
       return value;
     }, metadata);
     createInstruction(...instructionParams);
   }
+  return state;
 };
