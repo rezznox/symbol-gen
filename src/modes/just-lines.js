@@ -28,14 +28,14 @@ export const guide = {
 export function JustLines() {
   this.getLength = (state, i) => {
     const instructions = getInstructions(state);
-    const { lengthRanges, lengthIncrementsMode, lengthIncrements } =
+    const { lengthRanges, lengthIncrementMode, lengthIncrements } =
       getGuide(state);
     const byte = instructions[i];
     let increment = lengthIncrements;
     let first = true;
     find((range) => {
       if (!first) {
-        increment += incrementsMode[lengthIncrementsMode](
+        increment += incrementsMode[lengthIncrementMode](
           increment,
           lengthIncrements
         );
@@ -43,7 +43,7 @@ export function JustLines() {
       first = false;
       return byte < range;
     }, lengthRanges);
-    return {value: increment, index: i++};
+    return { value: increment, index: i + 1 };
   };
 
   this.getAngle = (state, i) => {
@@ -63,6 +63,6 @@ export function JustLines() {
       first = false;
       return byte < range;
     }, angleRanges);
-    return {value: increment, index: i++};
+    return { value: increment, index: i + 1 };
   };
 }

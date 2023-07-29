@@ -19,10 +19,10 @@ const encodeInput = curry((input, state) => {
 });
 
 const setGuide = (state) => {
-  const { guide }= modes[mode];
-  return assocPath(['config', 'guide'], guide, state);
+  const guideAndMode = modes[mode];
+  return assocPath(['config'], guideAndMode, state);
 }
-/* const debugPipe = (state) => {console.log(state); return state}; */
+ const debugPipe = (state) => {console.log(state); return state};
 const configure = curry(function (input, immutableState) {
   return pipe(
     initializeInstructionSet,
@@ -30,6 +30,7 @@ const configure = curry(function (input, immutableState) {
     initializeGraph,
     encodeInput(input),
     createInstructions,
+    debugPipe,
     draw,
     create300x300EmptyCanvas
   )(immutableState);

@@ -1,10 +1,12 @@
+import { sum } from "ramda";
 import { JustLines, guide } from "./just-lines.js";
 
+const { pow } = Math;
 export const incrementsMode = {
   linear: (acc, inc) => sum([acc, inc]),
-  exp: (x, y) => Math.pow(x, y),
+  exp: (x, y) => pow(x, y),
 };
 
 export const modes = {
-    'only-lines': {mode: JustLines, guide: guide}
-}
+  "only-lines": { mode: new JustLines(), guide: guide },
+};
