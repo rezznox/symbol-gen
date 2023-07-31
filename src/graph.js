@@ -76,6 +76,7 @@ export const Graph = function () {
     const sortedNodes = sortNodes((a, b) => calcDistanceToCenter(a) - calcDistanceToCenter(b));
     let lookupNode = sortedNodes[startIndex];
     let isCollision = false;
+    console.log({length, angle, startIndex})
     const nodeAux = {x: multiply(cos(angle), length), y: multiply(sin(angle), length)};
     //calculate new coordinates of new node lookupNode + nodeAux
     let newNode = {x: nodeAux.x+lookupNode.x, y: nodeAux.y+lookupNode.y};
@@ -101,7 +102,7 @@ export const Graph = function () {
       this.createNode();
       return true;
     }
-    return true;
+    return false;
   };
 
   this._iterateArcs = function* () {

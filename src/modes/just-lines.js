@@ -27,15 +27,17 @@ export const guide = {
 
 export function JustLines() {
   this.getLength = (state, i) => {
-    const instructions = getInstructions(state);
+    const {
+      input: { encoded },
+    } = state;
     const { lengthRanges, lengthIncrementMode, lengthIncrements } =
       getGuide(state);
-    const byte = instructions[i];
+    const byte = encoded[i];
     let increment = lengthIncrements;
     let first = true;
     find((range) => {
       if (!first) {
-        increment += incrementsMode[lengthIncrementMode](
+        increment = incrementsMode[lengthIncrementMode](
           increment,
           lengthIncrements
         );
@@ -47,15 +49,17 @@ export function JustLines() {
   };
 
   this.getAngle = (state, i) => {
-    const instructions = getInstructions(state);
+    const {
+      input: { encoded },
+    } = state;
     const { angleRanges, angleIncrementMode, angleIncrements } =
       getGuide(state);
-    const byte = instructions[i];
+    const byte = encoded[i];
     let increment = 0;
     let first = true;
     find((range) => {
       if (!first) {
-        increment += incrementsMode[angleIncrementMode](
+        increment = incrementsMode[angleIncrementMode](
           increment,
           angleIncrements
         );
@@ -65,4 +69,8 @@ export function JustLines() {
     }, angleRanges);
     return { value: increment, index: i + 1 };
   };
+
+  this.getIndex = (state, i) => {
+    return {value: i, index: i};
+  }
 }

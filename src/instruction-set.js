@@ -208,7 +208,8 @@ export const createInstructions = (state) => {
       state.build.encodedIndex = encodedIndex;
       return value;
     }, metadata);
-    createInstruction(...instructionParams);
+    console.log(instructionParams);
+    createInstruction(...instructionParams, state);
   }
   return state;
 };
