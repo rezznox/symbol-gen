@@ -30,7 +30,7 @@ const configure = curry(function (input, immutableState) {
     initializeGraph,
     encodeInput(input),
     createInstructions,
-    debugPipe,
+    /* debugPipe, */
     draw,
     create300x300EmptyCanvas
   )(immutableState);
@@ -39,3 +39,4 @@ const configure = curry(function (input, immutableState) {
 const run = configure(conejilloDeIndias);
 
 console.log(run(immutableState));
+/* run(immutableState) */
