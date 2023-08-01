@@ -98,9 +98,10 @@ export const createDrawLinesInAngle = curry((length, angle, state) => {
   //angle, length, color, initX, initY
   //initX, initY bytes are sent to the graph to decide from what node to draw
   const {
-    graph: { createNodesFromInstruction },
+    graph: { executeInstruction },
+    build: {encodedIndex},
   } = state;
-  const { initX, initY } = createNodesFromInstruction(
+  const { x: initX, y: initY } = executeInstruction(
     "drawLinesInAngle",
     [length, angle],
     state
