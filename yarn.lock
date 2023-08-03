@@ -3217,6 +3217,11 @@ npm-run-path@^4.0.1:
   dependencies:
     path-key "^3.0.0"
 
+numbers@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/numbers/-/numbers-0.7.0.tgz#05f3f239a2a22d0064e2a313ab3a4236298bb1d1"
+  integrity sha512-bdHRauOohlyg20dLiOitEJrXVs4xtu4GeDeKyChkWSfMeDLM39lUDcaOShSdmxqt4Ihu9syh480Fx/EiDY5zYQ==
+
 object-inspect@^1.12.3, object-inspect@^1.9.0:
   version "1.12.3"
   resolved "https://registry.yarnpkg.com/object-inspect/-/object-inspect-1.12.3.tgz#ba62dffd67ee256c8c086dfae69e016cd1f198b9"
