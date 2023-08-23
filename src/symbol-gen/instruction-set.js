@@ -4,16 +4,9 @@ import {
   assocPath,
   converge,
   curry,
-  equals,
-  find,
   findIndex,
-  gt,
-  head,
   identity,
-  ifElse,
   inc,
-  keys,
-  last,
   lt,
   map,
   multiply,
@@ -21,18 +14,12 @@ import {
   pipe,
   prop,
   slice,
-  split,
   subtract,
   sum,
-  thunkify,
-  tryCatch,
-  values,
 } from "ramda";
 import { cos, fix, sin } from "./utils/conversions.js";
 import { mutationSafeZone, popStack, pushInstruction } from "./state.js";
 import { findRangeOnObject } from "./utils/object-operations.js";
-import { modes } from "./modes/index.js";
-import { mode } from "./parsed-env.js";
 
 const MAX_ANGLE = 90;
 const MAX_LENGTH = 30;
@@ -99,7 +86,7 @@ export const createDrawLinesInAngle = curry((length, angle, state) => {
   //initX, initY bytes are sent to the graph to decide from what node to draw
   const {
     graph: { executeInstruction },
-    build: {encodedIndex},
+    build: { encodedIndex },
   } = state;
   const { x: initX, y: initY } = executeInstruction(
     "drawLinesInAngle",

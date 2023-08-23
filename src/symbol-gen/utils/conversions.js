@@ -1,7 +1,7 @@
 import { __, applyTo, compose, curry, tap } from "ramda";
 import { generateLsh } from "../lsh/index.js";
 
-const { cos: MathCos, sin: MathSin } = Math;
+const { cos: MathCos, sin: MathSin, pow: mathPow } = Math;
 
 export function toRadians(angle) {
   return angle * (Math.PI / 180);
@@ -15,4 +15,6 @@ export const sin = applyTo(__, compose(MathSin, toRadians))
 
 export const cos = applyTo(__, compose(MathCos, toRadians))
 
-export const fix = curry((number, decimals) => number.toFixed(decimals)); 
+export const fix = curry((number, decimals) => number.toFixed(decimals));
+
+export const pow = curry((x,y) => mathPow(x,y));

@@ -1,5 +1,5 @@
 import { find } from "ramda";
-import { getGuide, getInstructions } from "../state.js";
+import { getGuide } from "../state.js";
 import { incrementsMode } from "./index.js";
 
 export const guide = {
@@ -11,7 +11,7 @@ export const guide = {
   angleIncrementMode: "linear",
   angleIncrements: 15,
   prefilledNodes: [
-    { x: 150, y: 100 },
+    { x: 0, y: 100 },
     { x: 150, y: 110 },
     { x: 150, y: 120 },
     { x: 150, y: 130 },
